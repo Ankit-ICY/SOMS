@@ -2,9 +2,10 @@
 from rest_framework import serializers
 from users.models import CustomUser
 from django.contrib.auth import authenticate
-
+from company.serializers import CompanySerializer
 from rest_framework import serializers
 from users.models import CustomUser
+from company.models import Company
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6)
@@ -32,7 +33,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'name', 'email', 'phone', 'role', 'date_joined']
+        fields = ['id', 'name','profile_image', 'email', 'phone', 'role', 'date_joined']
 
 class LoginSerializer(serializers.Serializer):
     identifier = serializers.CharField()
@@ -54,3 +55,39 @@ class LoginSerializer(serializers.Serializer):
             return data
 
         raise serializers.ValidationError("Invalid credentials.")
+    
+
+class MyInfoSerializer(serializers.ModelSerializer):
+    # companies = CompanySerializer(many=True, read_only=True)
+    companies = serializers.SerializerMethodField()
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'name', 'email', 'phone', 'date_joined','companies']
+
+    def get_companies(self, obj):
+        if obj.role == CustomUser.Roles.ADMIN or obj.role == CustomUser.Roles.SUPERADMIN:
+            companies = Company.objects.filter(owner = obj)
+            company = []
+            for comp in companies:
+                company.append(
+                    {
+                        "id" : comp.id,
+                        "name" : comp.name,
+                    }
+                )
+            return company
+        
+        elif obj.role == CustomUser.Roles.NORMAL:
+            company_staff = Company.objects.filter(staff=obj)
+            company = []
+            for staff in company_staff:
+                company.append( 
+                    {
+                        "id" : staff.company.id,
+                        "name" : staff.company.name,
+                    }
+                )
+            return company
+        else:
+            return None
+

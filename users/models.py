@@ -47,7 +47,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=15, unique=True, null=True, blank=True)
     name = models.CharField(max_length=255)
     role = models.CharField(max_length=20, choices=Roles.choices, default=Roles.ADMIN)
-
+    profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
@@ -71,3 +71,4 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     @property
     def is_normal(self):
         return self.role == self.Roles.NORMAL
+

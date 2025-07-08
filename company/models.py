@@ -24,7 +24,7 @@ class Company(models.Model):
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=100)
     pincode = models.CharField(max_length=6)
-
+    staff = models.ManyToManyField(CustomUser, related_name="company_staff")
     logo = models.ImageField(upload_to='company_logos/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     url= models.URLField()

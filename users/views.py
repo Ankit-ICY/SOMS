@@ -8,6 +8,8 @@ from .serializers import RegisterSerializer, LoginSerializer
 from users.models import CustomUser
 from .authentication import get_tokens_for_user, secure_authenticate, authenticate_google_user
 from users.serializers import UserSerializer  
+from rest_framework import generics, permissions
+from .serializers import MyInfoSerializer
 
 class RegisterViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
@@ -86,3 +88,13 @@ class GoogleLoginView(APIView):
             'tokens': jwt_tokens    
             
         }, status=status.HTTP_200_OK)
+
+
+
+class MyInfoAPIView(viewsets.ModelViewSet):
+    serializer_class = MyInfoSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        print('----------------------')
+        return CustomUser.objects.filter(id=self.request.user.id)

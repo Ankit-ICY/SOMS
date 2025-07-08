@@ -14,7 +14,8 @@ class FoodItemViewSet(viewsets.ModelViewSet):
         if self.request.user.is_superuser or self.request.user.role == CustomUser.Roles.SUPERADMIN:
             return FoodItem.objects.all()
         return FoodItem.objects.filter(
-            Q(created_by=None) | Q(created_by=self.request.user)
+            Q(created_by=self.request.user) |Q(visibility=FoodItem.FoodVisibility.PUBLIC)
+            |Q(active=True)
         )
 
     def perform_create(self, serializer):
